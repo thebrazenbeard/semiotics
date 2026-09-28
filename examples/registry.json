@@ -1,0 +1,11 @@
+{
+  "signs": [{"id": "red-light", "form": "red light", "modality": "visual"}],
+  "sources": [
+    {"id": "traffic-convention", "description": "Illustrative road traffic convention; jurisdiction must be checked"},
+    {"id": "studio-convention", "description": "Illustrative recording studio practice; local usage must be checked"}
+  ],
+  "interpretations": [
+    {"id": "road-stop", "sign_id": "red-light", "meaning": "Stop at the signal", "source_id": "traffic-convention", "required_tags": ["road"]},
+    {"id": "studio-recording", "sign_id": "red-light", "meaning": "Recording in progress", "source_id": "studio-convention", "required_tags": ["studio"]}
+  ]
+}

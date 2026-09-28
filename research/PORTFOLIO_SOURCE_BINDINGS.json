@@ -1,0 +1,40 @@
+{
+  "schema_version": "portfolio-source-bindings/v1",
+  "captured_at": "2026-09-28",
+  "subjects": [
+    {
+      "repository": "thebrazenbeard/semanticatlas",
+      "commit": "beaecc6c64a6a8f90e7b47d4739296a3870b627c",
+      "mechanisms": [
+        "evidence/interpretation/adjudication separation",
+        "provenance is not canon authority"
+      ]
+    },
+    {
+      "repository": "thebrazenbeard/spm",
+      "commit": "d9ea72798ac892ac75f858177b6ed0c5a6b4c37c",
+      "mechanisms": [
+        "meaning in context",
+        "ambiguity preservation",
+        "semantic falsification"
+      ]
+    },
+    {
+      "repository": "thebrazenbeard/unvtrslr",
+      "commit": "33edef682181e1bea6b36c5afc588d261f0c1289",
+      "mechanisms": [
+        "semantic conservation",
+        "non-equivalence",
+        "semantic claim controls"
+      ]
+    },
+    {
+      "repository": "thebrazenbeard/discovery",
+      "commit": "62b679a4809c7496f87d1075b25b3f7a50abf2ab",
+      "mechanisms": [
+        "reuse must earn promotion",
+        "hostile review of shared abstractions"
+      ]
+    }
+  ]
+}

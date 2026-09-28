@@ -25,6 +25,8 @@ def interpret(
         seen.add(item.id)
         if item.sign_id != sign.id:
             continue
+        if item.status == "rejected":
+            continue
         if item.source_id not in source_map:
             raise ValueError(f"unknown source: {item.source_id}")
         if item.required_tags <= context.tags and not item.excluded_tags & context.tags:

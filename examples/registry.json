@@ -1,11 +1,20 @@
 {
-  "signs": [{"id": "red-light", "form": "red light", "modality": "visual"}],
+  "signs": [
+    {"id": "red-light", "form": "red light", "modality": "visual"},
+    {"id": "smoke", "form": "visible smoke", "modality": "visual"},
+    {"id": "duck", "form": "duck", "modality": "text"}
+  ],
   "sources": [
-    {"id": "traffic-convention", "description": "Illustrative road traffic convention; jurisdiction must be checked"},
-    {"id": "studio-convention", "description": "Illustrative recording studio practice; local usage must be checked"}
+    {"id": "traffic-convention", "description": "Illustrative road traffic convention; jurisdiction must be checked", "evidence_class": "illustrative"},
+    {"id": "studio-convention", "description": "Illustrative recording studio practice; local usage must be checked", "evidence_class": "illustrative"},
+    {"id": "smoke-observation", "description": "Illustrative observation that smoke may be causally associated with combustion but has rival causes", "evidence_class": "illustrative"},
+    {"id": "duck-lexicon", "description": "Illustrative English lexical ambiguity; not a complete lexicographic source", "evidence_class": "illustrative"}
   ],
   "interpretations": [
-    {"id": "road-stop", "sign_id": "red-light", "meaning": "Stop at the signal", "source_id": "traffic-convention", "required_tags": ["road"]},
-    {"id": "studio-recording", "sign_id": "red-light", "meaning": "Recording in progress", "source_id": "studio-convention", "required_tags": ["studio"]}
+    {"id": "road-stop", "sign_id": "red-light", "meaning": "Stop at the signal", "source_id": "traffic-convention", "required_tags": ["road"], "status": "candidate", "theory_tags": ["peirce:symbol"], "scope": "illustrative road context"},
+    {"id": "studio-recording", "sign_id": "red-light", "meaning": "Recording in progress", "source_id": "studio-convention", "required_tags": ["studio"], "status": "candidate", "theory_tags": ["peirce:symbol"], "scope": "illustrative studio context"},
+    {"id": "smoke-fire", "sign_id": "smoke", "meaning": "A fire or combustion process may be present", "source_id": "smoke-observation", "status": "unresolved", "support": 0.6, "theory_tags": ["peirce:index"], "scope": "illustrative; rival causes retained"},
+    {"id": "duck-bird", "sign_id": "duck", "meaning": "A duck as an animal", "source_id": "duck-lexicon", "required_tags": ["noun-context"], "status": "unresolved", "theory_tags": ["linguistic:lexical-ambiguity"]},
+    {"id": "duck-action", "sign_id": "duck", "meaning": "To lower the head or body", "source_id": "duck-lexicon", "required_tags": ["verb-context"], "status": "unresolved", "theory_tags": ["linguistic:lexical-ambiguity"]}
   ]
 }

@@ -23,7 +23,8 @@ def main(argv=None):
         Interpretation(
             **{**row,
                "required_tags": frozenset(row.get("required_tags", [])),
-               "excluded_tags": frozenset(row.get("excluded_tags", []))}
+               "excluded_tags": frozenset(row.get("excluded_tags", [])),
+               "theory_tags": frozenset(row.get("theory_tags", []))}
         )
         for row in data["interpretations"]
     ]
@@ -31,7 +32,10 @@ def main(argv=None):
     print(json.dumps([
         {"id": r.interpretation.id, "meaning": r.interpretation.meaning,
          "source": r.source.id, "locator": r.source.locator,
-         "matched_tags": sorted(r.matched_tags)}
+         "matched_tags": sorted(r.matched_tags),
+         "status": r.interpretation.status, "support": r.interpretation.support,
+         "theory_tags": sorted(r.interpretation.theory_tags),
+         "evidence_class": r.source.evidence_class}
         for r in readings
     ], indent=2))
 

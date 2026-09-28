@@ -7,7 +7,7 @@ name = "semiotics"
 version = "0.1.0"
 description = "Contextual sign interpretation with explicit provenance and competing readings"
 requires-python = ">=3.10"
-license = {text = "All rights reserved"}
+license = {text = "Source-visible proprietary; see LICENSE"}
 
 [project.scripts]
 semiotics = "semiotics.cli:main"

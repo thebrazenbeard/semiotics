@@ -1,4 +1,4 @@
-"""Data model. Assertions are attached to sources; scores are ranking aids, not truth."""
+"""Data model. Assertions are source-bound; support metadata is not truth or rank."""
 
 from dataclasses import dataclass
 

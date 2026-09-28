@@ -35,5 +35,22 @@ class ClaimStateTests(unittest.TestCase):
             Interpretation("bad", "s", "bad", "obs", status="certain")
 
 
+class IntegrityTests(unittest.TestCase):
+    def test_source_evidence_class_must_not_be_empty(self):
+        with self.assertRaisesRegex(ValueError, "evidence class"):
+            Source("s", "source", evidence_class="")
+
+    def test_rejected_interpretation_still_requires_valid_source(self):
+        item = Interpretation("i", "s", "old reading", "missing", status="rejected")
+        with self.assertRaisesRegex(ValueError, "unknown source"):
+            interpret(Sign("s", "x", "text"), Context(), [item], [])
+
+    def test_duplicate_source_ids_fail_closed(self):
+        item = Interpretation("i", "s", "reading", "src")
+        sources = [Source("src", "one"), Source("src", "two")]
+        with self.assertRaisesRegex(ValueError, "duplicate source"):
+            interpret(Sign("s", "x", "text"), Context(), [item], sources)
+
+
 if __name__ == "__main__":
     unittest.main()

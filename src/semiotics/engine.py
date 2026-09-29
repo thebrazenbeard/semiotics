@@ -69,7 +69,7 @@ class Registry:
 
         return [
             {
-                "interpretation": asdict(item),
+                "interpretation": _interpretation_dict(item),
                 "source": asdict(self.sources[item.source_id]),
             }
             for item in matches
@@ -81,6 +81,17 @@ def load_registry(path: str | Path) -> Registry:
     if not isinstance(payload, dict):
         raise RegistryError("registry root must be a JSON object")
     return Registry.from_dict(payload)
+
+
+def _interpretation_dict(item: Interpretation) -> dict[str, Any]:
+    return {
+        "id": item.id,
+        "sign_id": item.sign_id,
+        "meaning": item.meaning,
+        "source_id": item.source_id,
+        "required_tags": sorted(item.required_tags),
+        "excluded_tags": sorted(item.excluded_tags),
+    }
 
 
 def _list_field(data: dict[str, Any], name: str) -> list[dict[str, Any]]:

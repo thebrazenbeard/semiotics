@@ -25,6 +25,7 @@ class Registry:
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Registry":
+        _reject_unknown_keys(data, {"signs", "sources", "interpretations"}, "registry")
         signs = [_parse_sign(item) for item in _list_field(data, "signs")]
         sources = [_parse_source(item) for item in _list_field(data, "sources")]
         interpretations = [
@@ -94,6 +95,16 @@ def _interpretation_dict(item: Interpretation) -> dict[str, Any]:
     }
 
 
+def _reject_unknown_keys(
+    item: dict[str, Any], allowed: set[str], kind: str
+) -> None:
+    unknown = sorted(set(item) - allowed)
+    if unknown:
+        raise RegistryError(
+            f"{kind} contains unknown fields: " + ", ".join(unknown)
+        )
+
+
 def _list_field(data: dict[str, Any], name: str) -> list[dict[str, Any]]:
     value = data.get(name)
     if not isinstance(value, list):
@@ -139,6 +150,7 @@ def _tag_set(item: dict[str, Any], name: str) -> frozenset[str]:
 
 
 def _parse_sign(item: dict[str, Any]) -> Sign:
+    _reject_unknown_keys(item, {"id", "form", "modality"}, "sign")
     return Sign(
         id=_required_text(item, "id"),
         form=_required_text(item, "form"),
@@ -147,6 +159,7 @@ def _parse_sign(item: dict[str, Any]) -> Sign:
 
 
 def _parse_source(item: dict[str, Any]) -> Source:
+    _reject_unknown_keys(item, {"id", "description", "locator"}, "source")
     return Source(
         id=_required_text(item, "id"),
         description=_required_text(item, "description"),
@@ -155,6 +168,11 @@ def _parse_source(item: dict[str, Any]) -> Source:
 
 
 def _parse_interpretation(item: dict[str, Any]) -> Interpretation:
+    _reject_unknown_keys(
+        item,
+        {"id", "sign_id", "meaning", "source_id", "required_tags", "excluded_tags"},
+        "interpretation",
+    )
     return Interpretation(
         id=_required_text(item, "id"),
         sign_id=_required_text(item, "sign_id"),

@@ -193,6 +193,41 @@ def _validate_entities(
     interpretations: list[Interpretation],
     relations: list[InterpretationRelation],
 ) -> None:
+    for item in signs:
+        _validate_model_text(item.id, "sign id")
+        _validate_model_text(item.form, "sign form")
+        _validate_model_text(item.modality, "sign modality")
+
+    for item in sources:
+        _validate_model_text(item.id, "source id")
+        _validate_model_text(item.description, "source description")
+        _validate_optional_model_text(item.locator, "source locator")
+        _validate_optional_model_text(item.citation, "source citation")
+        if item.published_year is not None and (
+            isinstance(item.published_year, bool)
+            or not isinstance(item.published_year, int)
+        ):
+            raise RegistryError("source published_year must be an integer when present")
+
+    for item in interpretations:
+        _validate_model_text(item.id, "interpretation id")
+        _validate_model_text(item.sign_id, "interpretation sign_id")
+        _validate_model_text(item.meaning, "interpretation meaning")
+        _validate_model_text(item.source_id, "interpretation source_id")
+        _validate_optional_model_text(
+            item.supersedes_id,
+            "interpretation supersedes_id",
+        )
+        _validate_model_tags(item.required_tags, "required_tags")
+        _validate_model_tags(item.excluded_tags, "excluded_tags")
+
+    for item in relations:
+        _validate_model_text(item.id, "relation id")
+        _validate_model_text(item.left_id, "relation left_id")
+        _validate_model_text(item.right_id, "relation right_id")
+        _validate_model_text(item.kind, "relation kind")
+        _validate_model_text(item.source_id, "relation source_id")
+
     _require_unique([item.id for item in signs], "sign")
     _require_unique([item.id for item in sources], "source")
     _require_unique([item.id for item in interpretations], "interpretation")
@@ -258,6 +293,23 @@ def _validate_entities(
             )
         if relation.kind not in RELATION_KINDS:
             raise RegistryError(f"relation kind {relation.kind!r} is not supported")
+
+
+def _validate_model_text(value: Any, label: str) -> None:
+    if not isinstance(value, str) or not value.strip():
+        raise RegistryError(f"{label} must be a non-empty string")
+
+
+def _validate_optional_model_text(value: Any, label: str) -> None:
+    if value is not None:
+        _validate_model_text(value, label)
+
+
+def _validate_model_tags(value: Any, label: str) -> None:
+    if not isinstance(value, (set, frozenset)) or not all(
+        isinstance(tag, str) and tag.strip() for tag in value
+    ):
+        raise RegistryError(f"{label} must contain only non-empty strings")
 
 
 def _require_unique(values: list[str], kind: str) -> None:

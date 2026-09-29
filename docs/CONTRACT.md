@@ -46,7 +46,8 @@ result set.
 
 ## Failure semantics
 
-Malformed JSON registries fail closed. Unknown fields, duplicate IDs, duplicate
+Malformed registries fail closed whether parsed from JSON or assembled through
+the public dataclass constructor path. Unknown fields, duplicate IDs, duplicate
 tags, whitespace-only strings, dangling sign/source/revision references,
 cross-sign revision links, revision cycles, and predicates that both require and
 exclude the same tag are rejected. Runtime acceptance is intended to match the

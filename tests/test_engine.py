@@ -64,6 +64,18 @@ class RegistryTests(unittest.TestCase):
         with self.assertRaisesRegex(RegistryError, "duplicate interpretation"):
             Registry.from_dict(payload)
 
+    def test_unknown_registry_field_fails(self):
+        payload = registry_payload()
+        payload["unexpected"] = True
+        with self.assertRaisesRegex(RegistryError, "registry contains unknown fields"):
+            Registry.from_dict(payload)
+
+    def test_unknown_entity_field_fails(self):
+        payload = registry_payload()
+        payload["signs"][0]["unexpected"] = True
+        with self.assertRaisesRegex(RegistryError, "sign contains unknown fields"):
+            Registry.from_dict(payload)
+
     def test_duplicate_tags_fail_instead_of_changing_specificity(self):
         payload = registry_payload()
         payload["interpretations"][0]["required_tags"] = ["x", "x"]

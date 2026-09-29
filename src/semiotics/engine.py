@@ -130,9 +130,11 @@ def _optional_text(item: dict[str, Any], name: str) -> str | None:
 def _tag_set(item: dict[str, Any], name: str) -> frozenset[str]:
     value = item.get(name, [])
     if not isinstance(value, list) or not all(
-        isinstance(tag, str) and tag for tag in value
+        isinstance(tag, str) and tag.strip() for tag in value
     ):
         raise RegistryError(f"{name!r} must be a list of non-empty strings")
+    if len(value) != len(set(value)):
+        raise RegistryError(f"{name!r} must not contain duplicate tags")
     return frozenset(value)
 
 

@@ -30,7 +30,9 @@ in progress”; `--tag road` yields “Stop at the signal”; no tag yields `[]`
 `sign_id`, `meaning`, `source_id`, and optional `required_tags` and
 `excluded_tags`. Tags are exact strings. A missing source reference or
 duplicate interpretation ID fails explicitly. A compatible reading means only
-that the registered context predicates matched.
+that the registered context predicates matched. See [docs/CONTRACT.md](docs/CONTRACT.md)
+for the exact behavioral contract and [schema/registry.schema.json](schema/registry.schema.json)
+for the machine-readable registry shape.
 
 ## Scope and next decisions
 
@@ -40,5 +42,7 @@ and a policy for contradictory readings. A product using learned interpretation
 would also need an evaluation set and uncertainty calibration. Those decisions
 should be driven by the intended domain rather than silently baked into this model.
 
-No external dependency or network service is required. All rights reserved
-pending a licensing decision by the repository owner.
+No runtime dependency or network service is required. See [docs/ROADMAP.md](docs/ROADMAP.md)
+for deliberately non-binding future directions.
+
+The repository is currently all-rights-reserved; see [LICENSE](LICENSE).

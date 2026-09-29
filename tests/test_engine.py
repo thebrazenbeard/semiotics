@@ -64,6 +64,23 @@ class RegistryTests(unittest.TestCase):
         with self.assertRaisesRegex(RegistryError, "duplicate interpretation"):
             Registry.from_dict(payload)
 
+    def test_duplicate_tags_fail_instead_of_changing_specificity(self):
+        payload = registry_payload()
+        payload["interpretations"][0]["required_tags"] = ["x", "x"]
+        with self.assertRaisesRegex(RegistryError, "duplicate tags"):
+            Registry.from_dict(payload)
+
+    def test_whitespace_only_tag_fails(self):
+        payload = registry_payload()
+        payload["interpretations"][0]["required_tags"] = ["   "]
+        with self.assertRaisesRegex(RegistryError, "non-empty strings"):
+            Registry.from_dict(payload)
+
+    def test_unknown_sign_query_fails_explicitly(self):
+        registry = Registry.from_dict(registry_payload())
+        with self.assertRaisesRegex(RegistryError, "unknown sign"):
+            registry.query("missing")
+
     def test_same_tag_cannot_be_required_and_excluded(self):
         payload = registry_payload()
         payload["interpretations"][0]["required_tags"] = ["x"]

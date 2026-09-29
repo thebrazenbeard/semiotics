@@ -24,6 +24,18 @@ class CliTests(unittest.TestCase):
         payload = json.loads(proc.stdout)
         self.assertEqual(payload[0]["interpretation"]["meaning"], "Recording in progress")
 
+    def test_road_context_returns_road_reading(self):
+        proc = self.run_cli("examples/registry.json", "red-light", "--tag", "road")
+        self.assertEqual(proc.returncode, 0, proc.stderr)
+        payload = json.loads(proc.stdout)
+        self.assertEqual(payload[0]["interpretation"]["meaning"], "Stop at the signal")
+
+    def test_unknown_sign_is_structured_error(self):
+        proc = self.run_cli("examples/registry.json", "missing")
+        self.assertEqual(proc.returncode, 2)
+        self.assertEqual(proc.stdout, "")
+        self.assertEqual(json.loads(proc.stderr)["error"], "unknown sign 'missing'")
+
     def test_no_context_yields_empty_for_example(self):
         proc = self.run_cli("examples/registry.json", "red-light")
         self.assertEqual(proc.returncode, 0, proc.stderr)

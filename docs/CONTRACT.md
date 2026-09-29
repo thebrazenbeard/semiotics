@@ -28,8 +28,11 @@ or truth.
 
 ## Failure semantics
 
-Malformed registries fail closed. Duplicate IDs, dangling sign/source references,
-and predicates that both require and exclude the same tag are rejected.
+Malformed registries fail closed. Unknown fields, duplicate IDs, duplicate tags,
+whitespace-only strings, dangling sign/source references, and predicates that both
+require and exclude the same tag are rejected. Runtime acceptance is intended to
+match the published JSON Schema plus referential and cross-field checks that JSON
+Schema alone does not express.
 
 Unknown query sign IDs are errors. A known sign with no compatible interpretation
 returns an empty list.

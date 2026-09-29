@@ -33,7 +33,7 @@
     "nonEmptyString": {
       "type": "string",
       "minLength": 1,
-      "pattern": ".*\\\\S.*"
+      "pattern": ".*\\S.*"
     },
     "tagList": {
       "type": "array",

@@ -5,6 +5,8 @@ from pathlib import Path
 from jsonschema import Draft202012Validator
 from jsonschema.exceptions import ValidationError
 
+from semiotics import load_registry
+
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = json.loads((ROOT / "schema/registry.schema.json").read_text(encoding="utf-8"))
@@ -38,6 +40,11 @@ class SchemaTests(unittest.TestCase):
         payload["interpretations"][0]["required_tags"] = ["studio", "studio"]
         with self.assertRaises(ValidationError):
             VALIDATOR.validate(payload)
+
+
+    def test_canonical_export_validates_against_published_schema(self):
+        registry = load_registry(ROOT / "corpus/foundations.json")
+        VALIDATOR.validate(registry.to_dict())
 
 
 if __name__ == "__main__":

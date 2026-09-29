@@ -21,6 +21,15 @@ class Source:
 
 
 @dataclass(frozen=True)
+class InterpretationRelation:
+    id: str
+    left_id: str
+    right_id: str
+    kind: str
+    source_id: str
+
+
+@dataclass(frozen=True)
 class Interpretation:
     id: str
     sign_id: str

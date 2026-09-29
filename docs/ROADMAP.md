@@ -17,14 +17,18 @@ In progress. Implemented:
 - current-versus-historical query behavior;
 - CLI access to superseded history;
 - executable JSON Schema validation in the test suite;
-- a source-backed foundational corpus separated by theoretical framework.
+- a source-backed foundational corpus separated by theoretical framework;
+- source-bound interpretation relations for contrast, contradiction, support,
+  and refinement without inference;
+- deterministic registry export and round-trip loading.
 
 Still open:
 
-- explicit relations among signs, contexts, and interpretations;
-- first-class competing-reading and contradiction representation;
+- richer relations involving signs and contexts themselves;
+- contradiction adjudication or argument structure beyond explicit relation
+  records;
 - richer source criticism beyond bibliographic provenance;
-- import/export tooling beyond loading validated JSON.
+- bulk import/migration tooling beyond validated JSON load/export.
 
 ## Candidate v0.3 - evaluation layer
 

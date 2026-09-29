@@ -35,5 +35,18 @@ class CorpusTests(unittest.TestCase):
         self.assertEqual(self.registry.query("sign"), [])
 
 
+    def test_augustine_historical_sign_reading_is_queryable(self):
+        result = self.registry.query("sign", {"framework:augustine"})
+        self.assertEqual(result[0]["interpretation"]["id"], "sign-augustine")
+        self.assertIn("Augustine", result[0]["source"]["citation"])
+
+    def test_peirce_and_saussure_contrast_is_explicit_and_sourced(self):
+        result = self.registry.query("sign", {"framework:peirce"})
+        relations = result[0]["relations"]
+        self.assertEqual(relations[0]["id"], "peirce-saussure-contrast")
+        self.assertEqual(relations[0]["kind"], "contrasts_with")
+        self.assertEqual(relations[0]["source_id"], "sep-peirce-2012")
+
+
 if __name__ == "__main__":
     unittest.main()

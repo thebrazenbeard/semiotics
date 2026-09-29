@@ -27,6 +27,12 @@
       "items": {
         "$ref": "#/$defs/interpretation"
       }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/relation"
+      }
     }
   },
   "$defs": {
@@ -116,6 +122,40 @@
           "$ref": "#/$defs/tagList"
         },
         "supersedes_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "relation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "left_id",
+        "right_id",
+        "kind",
+        "source_id"
+      ],
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "left_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "right_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "kind": {
+          "type": "string",
+          "enum": [
+            "contrasts_with",
+            "contradicts",
+            "supports",
+            "refines"
+          ]
+        },
+        "source_id": {
           "$ref": "#/$defs/nonEmptyString"
         }
       }

@@ -5,11 +5,16 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import Any
 
-from .model import Interpretation, Sign, Source
+from .model import Interpretation, InterpretationRelation, Sign, Source
 
 
 class RegistryError(ValueError):
     """Raised when registry data violates the explicit schema or references."""
+
+
+RELATION_KINDS = frozenset(
+    {"contrasts_with", "contradicts", "supports", "refines"}
+)
 
 
 class Registry:
@@ -18,22 +23,32 @@ class Registry:
         signs: list[Sign],
         sources: list[Source],
         interpretations: list[Interpretation],
+        relations: list[InterpretationRelation] | None = None,
     ) -> None:
-        _validate_entities(signs, sources, interpretations)
+        relations = list(relations or [])
+        _validate_entities(signs, sources, interpretations, relations)
         self.signs = {item.id: item for item in signs}
         self.sources = {item.id: item for item in sources}
         self.interpretations = list(interpretations)
+        self.relations = relations
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Registry":
-        _reject_unknown_keys(data, {"signs", "sources", "interpretations"}, "registry")
+        _reject_unknown_keys(
+            data,
+            {"signs", "sources", "interpretations", "relations"},
+            "registry",
+        )
         signs = [_parse_sign(item) for item in _list_field(data, "signs")]
         sources = [_parse_source(item) for item in _list_field(data, "sources")]
         interpretations = [
             _parse_interpretation(item) for item in _list_field(data, "interpretations")
         ]
+        relations = [
+            _parse_relation(item) for item in _optional_list_field(data, "relations")
+        ]
 
-        return cls(signs, sources, interpretations)
+        return cls(signs, sources, interpretations, relations)
 
     def query(
         self,
@@ -62,13 +77,43 @@ class Registry:
         ]
         matches.sort(key=lambda item: (-item.specificity, item.id))
 
-        return [
-            {
+        result = []
+        for item in matches:
+            entry = {
                 "interpretation": _interpretation_dict(item),
                 "source": _source_dict(self.sources[item.source_id]),
             }
-            for item in matches
-        ]
+            relations = [
+                _relation_dict(relation)
+                for relation in self.relations
+                if item.id in {relation.left_id, relation.right_id}
+            ]
+            if relations:
+                entry["relations"] = sorted(relations, key=lambda relation: relation["id"])
+            result.append(entry)
+        return result
+
+    def to_dict(self) -> dict[str, Any]:
+        payload = {
+            "signs": [
+                asdict(item)
+                for item in sorted(self.signs.values(), key=lambda item: item.id)
+            ],
+            "sources": [
+                _source_registry_dict(item)
+                for item in sorted(self.sources.values(), key=lambda item: item.id)
+            ],
+            "interpretations": [
+                _interpretation_dict(item)
+                for item in sorted(self.interpretations, key=lambda item: item.id)
+            ],
+        }
+        if self.relations:
+            payload["relations"] = [
+                _relation_dict(item)
+                for item in sorted(self.relations, key=lambda item: item.id)
+            ]
+        return payload
 
 
 def load_registry(path: str | Path) -> Registry:
@@ -78,6 +123,13 @@ def load_registry(path: str | Path) -> Registry:
     return Registry.from_dict(payload)
 
 
+def dump_registry(registry: Registry, path: str | Path) -> None:
+    Path(path).write_text(
+        json.dumps(registry.to_dict(), indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+
 def _source_dict(item: Source) -> dict[str, Any]:
     result = asdict(item)
     if item.citation is None:
@@ -85,6 +137,15 @@ def _source_dict(item: Source) -> dict[str, Any]:
     if item.published_year is None:
         result.pop("published_year")
     return result
+
+
+def _source_registry_dict(item: Source) -> dict[str, Any]:
+    result = asdict(item)
+    return {key: value for key, value in result.items() if value is not None}
+
+
+def _relation_dict(item: InterpretationRelation) -> dict[str, Any]:
+    return asdict(item)
 
 
 def _interpretation_dict(item: Interpretation) -> dict[str, Any]:
@@ -111,6 +172,12 @@ def _reject_unknown_keys(
         )
 
 
+def _optional_list_field(data: dict[str, Any], name: str) -> list[dict[str, Any]]:
+    if name not in data:
+        return []
+    return _list_field(data, name)
+
+
 def _list_field(data: dict[str, Any], name: str) -> list[dict[str, Any]]:
     value = data.get(name)
     if not isinstance(value, list):
@@ -124,10 +191,12 @@ def _validate_entities(
     signs: list[Sign],
     sources: list[Source],
     interpretations: list[Interpretation],
+    relations: list[InterpretationRelation],
 ) -> None:
     _require_unique([item.id for item in signs], "sign")
     _require_unique([item.id for item in sources], "source")
     _require_unique([item.id for item in interpretations], "interpretation")
+    _require_unique([item.id for item in relations], "relation")
 
     sign_ids = {item.id for item in signs}
     source_ids = {item.id for item in sources}
@@ -170,6 +239,25 @@ def _validate_entities(
                 raise RegistryError("interpretation revision history contains a cycle")
             seen.add(current.id)
             current = interpretation_by_id[current.supersedes_id]
+
+    for relation in relations:
+        if relation.left_id == relation.right_id:
+            raise RegistryError(
+                f"relation {relation.id!r} must connect distinct interpretations"
+            )
+        for endpoint in (relation.left_id, relation.right_id):
+            if endpoint not in interpretation_by_id:
+                raise RegistryError(
+                    f"relation {relation.id!r} references unknown interpretation "
+                    f"{endpoint!r}"
+                )
+        if relation.source_id not in source_ids:
+            raise RegistryError(
+                f"relation {relation.id!r} references unknown source "
+                f"{relation.source_id!r}"
+            )
+        if relation.kind not in RELATION_KINDS:
+            raise RegistryError(f"relation kind {relation.kind!r} is not supported")
 
 
 def _require_unique(values: list[str], kind: str) -> None:
@@ -262,4 +350,18 @@ def _parse_interpretation(item: dict[str, Any]) -> Interpretation:
         supersedes_id=_optional_text(item, "supersedes_id"),
         required_tags=_tag_set(item, "required_tags"),
         excluded_tags=_tag_set(item, "excluded_tags"),
+    )
+
+def _parse_relation(item: dict[str, Any]) -> InterpretationRelation:
+    _reject_unknown_keys(
+        item,
+        {"id", "left_id", "right_id", "kind", "source_id"},
+        "relation",
+    )
+    return InterpretationRelation(
+        id=_required_text(item, "id"),
+        left_id=_required_text(item, "left_id"),
+        right_id=_required_text(item, "right_id"),
+        kind=_required_text(item, "kind"),
+        source_id=_required_text(item, "source_id"),
     )

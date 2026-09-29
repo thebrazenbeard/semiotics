@@ -21,6 +21,12 @@ expressed only through exact string predicates:
 An interpretation may also name supersedes_id. The referenced interpretation
 must exist and belong to the same sign. Revision links may not form cycles.
 
+A relation links two distinct registered interpretations with one explicit kind
+(contrasts_with, contradicts, supports, or refines) and one registered source.
+Relations are source-bound metadata only: they do not affect matching, ranking,
+revision status, or truth. No inverse, transitive, or inferred relations are
+created by the engine.
+
 ## Query semantics
 
 A query names one registered sign and supplies zero or more context tags. Every
@@ -33,7 +39,10 @@ tie-breaking. Specificity is an ordering rule, not confidence, probability,
 evidentiary weight, or truth.
 
 Library callers may set include_superseded to true to include revision history.
-The CLI exposes the same behavior with --include-superseded.
+The CLI exposes the same behavior with --include-superseded. When a returned
+interpretation participates in explicit relations, those relation records are
+included in that result without pulling non-matching interpretations into the
+result set.
 
 ## Failure semantics
 
@@ -55,6 +64,10 @@ its context is represented rather than silently reconciled.
 
 Corrections should normally append a new interpretation and link it through
 supersedes_id instead of destructively rewriting a historical record.
+
+Registry.to_dict() and dump_registry() produce deterministic, ID-sorted registry
+serialization. Export preserves explicit provenance, revision links, and
+relations; it does not add inferred material.
 
 ## Non-goals
 

@@ -52,6 +52,31 @@ class RegistryTests(unittest.TestCase):
             ["general"],
         )
 
+    def test_specificity_tie_breaks_by_interpretation_id(self):
+        payload = registry_payload()
+        payload["interpretations"] = [
+            {
+                "id": "z-reading",
+                "sign_id": "s",
+                "meaning": "z",
+                "source_id": "src",
+                "required_tags": ["a"],
+            },
+            {
+                "id": "a-reading",
+                "sign_id": "s",
+                "meaning": "a",
+                "source_id": "src",
+                "required_tags": ["a"],
+            },
+        ]
+        registry = Registry.from_dict(payload)
+        result = registry.query("s", {"a"})
+        self.assertEqual(
+            [item["interpretation"]["id"] for item in result],
+            ["a-reading", "z-reading"],
+        )
+
     def test_unknown_source_fails_explicitly(self):
         payload = registry_payload()
         payload["interpretations"][0]["source_id"] = "missing"

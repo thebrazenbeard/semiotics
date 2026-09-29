@@ -4,59 +4,111 @@
   "title": "Semiotics registry",
   "type": "object",
   "additionalProperties": false,
-  "required": ["signs", "sources", "interpretations"],
+  "required": [
+    "signs",
+    "sources",
+    "interpretations"
+  ],
   "properties": {
     "signs": {
       "type": "array",
-      "items": { "$ref": "#/$defs/sign" }
+      "items": {
+        "$ref": "#/$defs/sign"
+      }
     },
     "sources": {
       "type": "array",
-      "items": { "$ref": "#/$defs/source" }
+      "items": {
+        "$ref": "#/$defs/source"
+      }
     },
     "interpretations": {
       "type": "array",
-      "items": { "$ref": "#/$defs/interpretation" }
+      "items": {
+        "$ref": "#/$defs/interpretation"
+      }
     }
   },
   "$defs": {
-    "nonEmptyString": { "type": "string", "minLength": 1 },
+    "nonEmptyString": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": ".*\\\\S.*"
+    },
     "tagList": {
       "type": "array",
-      "items": { "$ref": "#/$defs/nonEmptyString" },
+      "items": {
+        "$ref": "#/$defs/nonEmptyString"
+      },
       "uniqueItems": true
     },
     "sign": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "form", "modality"],
+      "required": [
+        "id",
+        "form",
+        "modality"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/nonEmptyString" },
-        "form": { "$ref": "#/$defs/nonEmptyString" },
-        "modality": { "$ref": "#/$defs/nonEmptyString" }
+        "id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "form": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "modality": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
       }
     },
     "source": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "description"],
+      "required": [
+        "id",
+        "description"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/nonEmptyString" },
-        "description": { "$ref": "#/$defs/nonEmptyString" },
-        "locator": { "$ref": "#/$defs/nonEmptyString" }
+        "id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "description": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "locator": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
       }
     },
     "interpretation": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["id", "sign_id", "meaning", "source_id"],
+      "required": [
+        "id",
+        "sign_id",
+        "meaning",
+        "source_id"
+      ],
       "properties": {
-        "id": { "$ref": "#/$defs/nonEmptyString" },
-        "sign_id": { "$ref": "#/$defs/nonEmptyString" },
-        "meaning": { "$ref": "#/$defs/nonEmptyString" },
-        "source_id": { "$ref": "#/$defs/nonEmptyString" },
-        "required_tags": { "$ref": "#/$defs/tagList" },
-        "excluded_tags": { "$ref": "#/$defs/tagList" }
+        "id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "sign_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "meaning": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "source_id": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "required_tags": {
+          "$ref": "#/$defs/tagList"
+        },
+        "excluded_tags": {
+          "$ref": "#/$defs/tagList"
+        }
       }
     }
   }

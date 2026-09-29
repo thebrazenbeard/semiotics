@@ -1,0 +1,135 @@
+{
+  "signs": [
+    {
+      "id": "sign",
+      "form": "sign",
+      "modality": "conceptual-term"
+    },
+    {
+      "id": "icon",
+      "form": "icon",
+      "modality": "conceptual-term"
+    },
+    {
+      "id": "index",
+      "form": "index",
+      "modality": "conceptual-term"
+    },
+    {
+      "id": "symbol",
+      "form": "symbol",
+      "modality": "conceptual-term"
+    },
+    {
+      "id": "syntactics",
+      "form": "syntactics",
+      "modality": "conceptual-term"
+    },
+    {
+      "id": "semantics",
+      "form": "semantics",
+      "modality": "conceptual-term"
+    },
+    {
+      "id": "pragmatics",
+      "form": "pragmatics",
+      "modality": "conceptual-term"
+    }
+  ],
+  "sources": [
+    {
+      "id": "sep-peirce-2022",
+      "description": "Scholarly overview of Peirce's theory of signs and its development.",
+      "citation": "Atkin, Albert. 'Peirce's Theory of Signs.' Stanford Encyclopedia of Philosophy, substantive revision 2022.",
+      "published_year": 2022,
+      "locator": "https://plato.stanford.edu/entries/peirce-semiotics/"
+    },
+    {
+      "id": "iep-literary-structuralism",
+      "description": "Reference overview of structuralism summarizing Saussurean signifier/signified, arbitrariness, and differential meaning.",
+      "citation": "Internet Encyclopedia of Philosophy. 'Literary Theory,' section 5: Structuralism and Poststructuralism.",
+      "locator": "https://iep.utm.edu/literary/"
+    },
+    {
+      "id": "morris-1938",
+      "description": "Publication record for Morris's foundational account of syntactics, semantics, and pragmatics.",
+      "citation": "Morris, Charles W. Foundations of the Theory of Signs. International Encyclopedia of Unified Science 1(2). University of Chicago Press, 1938.",
+      "published_year": 1938,
+      "locator": "https://www.mpi.nl/publications/item2364493/foundations-theory-signs"
+    }
+  ],
+  "interpretations": [
+    {
+      "id": "sign-peirce-triadic",
+      "sign_id": "sign",
+      "meaning": "A sign relation is triadic: a sign-vehicle represents an object through an interpretant, so interpretation is constitutive of signification.",
+      "source_id": "sep-peirce-2022",
+      "required_tags": [
+        "framework:peirce"
+      ]
+    },
+    {
+      "id": "sign-saussure-differential",
+      "sign_id": "sign",
+      "meaning": "A linguistic sign joins a signifier with a signified; their connection is treated as arbitrary and meaning is constituted through differences within the language system.",
+      "source_id": "iep-literary-structuralism",
+      "required_tags": [
+        "framework:saussure"
+      ]
+    },
+    {
+      "id": "icon-peirce",
+      "sign_id": "icon",
+      "meaning": "A sign functioning through a shared quality or resemblance with its object.",
+      "source_id": "sep-peirce-2022",
+      "required_tags": [
+        "framework:peirce"
+      ]
+    },
+    {
+      "id": "index-peirce",
+      "sign_id": "index",
+      "meaning": "A sign functioning through an existential, physical, or causal connection with its object.",
+      "source_id": "sep-peirce-2022",
+      "required_tags": [
+        "framework:peirce"
+      ]
+    },
+    {
+      "id": "symbol-peirce",
+      "sign_id": "symbol",
+      "meaning": "A sign functioning through a general, conventional, habitual, or rule-governed connection with its object.",
+      "source_id": "sep-peirce-2022",
+      "required_tags": [
+        "framework:peirce"
+      ]
+    },
+    {
+      "id": "syntactics-morris",
+      "sign_id": "syntactics",
+      "meaning": "The dimension of semiotic concerned with relations among signs abstracted from their relations to objects or interpreters.",
+      "source_id": "morris-1938",
+      "required_tags": [
+        "framework:morris"
+      ]
+    },
+    {
+      "id": "semantics-morris",
+      "sign_id": "semantics",
+      "meaning": "The dimension of semiotic concerned with relations of signs to what they designate or denote.",
+      "source_id": "morris-1938",
+      "required_tags": [
+        "framework:morris"
+      ]
+    },
+    {
+      "id": "pragmatics-morris",
+      "sign_id": "pragmatics",
+      "meaning": "The dimension of semiotic concerned with relations of signs to their interpreters.",
+      "source_id": "morris-1938",
+      "required_tags": [
+        "framework:morris"
+      ]
+    }
+  ]
+}

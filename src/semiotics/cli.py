@@ -21,6 +21,11 @@ def build_parser() -> argparse.ArgumentParser:
         default=[],
         help="Context tag. Repeat for multiple tags.",
     )
+    parser.add_argument(
+        "--include-superseded",
+        action="store_true",
+        help="Include historical interpretations superseded by newer readings.",
+    )
     return parser
 
 
@@ -28,7 +33,11 @@ def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
         registry = load_registry(args.registry)
-        result = registry.query(args.sign_id, set(args.tags))
+        result = registry.query(
+            args.sign_id,
+            set(args.tags),
+            include_superseded=args.include_superseded,
+        )
     except (OSError, json.JSONDecodeError, RegistryError) as exc:
         print(json.dumps({"error": str(exc)}), file=sys.stderr)
         return 2

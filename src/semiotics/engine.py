@@ -19,9 +19,10 @@ class Registry:
         sources: list[Source],
         interpretations: list[Interpretation],
     ) -> None:
+        _validate_entities(signs, sources, interpretations)
         self.signs = {item.id: item for item in signs}
         self.sources = {item.id: item for item in sources}
-        self.interpretations = interpretations
+        self.interpretations = list(interpretations)
 
     @classmethod
     def from_dict(cls, data: dict[str, Any]) -> "Registry":
@@ -32,46 +33,39 @@ class Registry:
             _parse_interpretation(item) for item in _list_field(data, "interpretations")
         ]
 
-        _require_unique([item.id for item in signs], "sign")
-        _require_unique([item.id for item in sources], "source")
-        _require_unique([item.id for item in interpretations], "interpretation")
-
-        sign_ids = {item.id for item in signs}
-        source_ids = {item.id for item in sources}
-        for item in interpretations:
-            if item.sign_id not in sign_ids:
-                raise RegistryError(
-                    f"interpretation {item.id!r} references unknown sign {item.sign_id!r}"
-                )
-            if item.source_id not in source_ids:
-                raise RegistryError(
-                    f"interpretation {item.id!r} references unknown source {item.source_id!r}"
-                )
-            overlap = item.required_tags & item.excluded_tags
-            if overlap:
-                raise RegistryError(
-                    f"interpretation {item.id!r} requires and excludes the same tags: "
-                    + ", ".join(sorted(overlap))
-                )
-
         return cls(signs, sources, interpretations)
 
-    def query(self, sign_id: str, tags: set[str] | None = None) -> list[dict[str, Any]]:
+    def query(
+        self,
+        sign_id: str,
+        tags: set[str] | None = None,
+        *,
+        include_superseded: bool = False,
+    ) -> list[dict[str, Any]]:
         tags = tags or set()
+        if not all(isinstance(tag, str) and tag.strip() for tag in tags):
+            raise RegistryError("context tags must be non-empty strings")
         if sign_id not in self.signs:
             raise RegistryError(f"unknown sign {sign_id!r}")
 
+        superseded_ids = {
+            item.supersedes_id
+            for item in self.interpretations
+            if item.supersedes_id is not None
+        }
         matches = [
             item
             for item in self.interpretations
-            if item.sign_id == sign_id and item.matches(tags)
+            if item.sign_id == sign_id
+            and item.matches(tags)
+            and (include_superseded or item.id not in superseded_ids)
         ]
         matches.sort(key=lambda item: (-item.specificity, item.id))
 
         return [
             {
                 "interpretation": _interpretation_dict(item),
-                "source": asdict(self.sources[item.source_id]),
+                "source": _source_dict(self.sources[item.source_id]),
             }
             for item in matches
         ]
@@ -84,8 +78,17 @@ def load_registry(path: str | Path) -> Registry:
     return Registry.from_dict(payload)
 
 
+def _source_dict(item: Source) -> dict[str, Any]:
+    result = asdict(item)
+    if item.citation is None:
+        result.pop("citation")
+    if item.published_year is None:
+        result.pop("published_year")
+    return result
+
+
 def _interpretation_dict(item: Interpretation) -> dict[str, Any]:
-    return {
+    result = {
         "id": item.id,
         "sign_id": item.sign_id,
         "meaning": item.meaning,
@@ -93,6 +96,9 @@ def _interpretation_dict(item: Interpretation) -> dict[str, Any]:
         "required_tags": sorted(item.required_tags),
         "excluded_tags": sorted(item.excluded_tags),
     }
+    if item.supersedes_id is not None:
+        result["supersedes_id"] = item.supersedes_id
+    return result
 
 
 def _reject_unknown_keys(
@@ -112,6 +118,58 @@ def _list_field(data: dict[str, Any], name: str) -> list[dict[str, Any]]:
     if not all(isinstance(item, dict) for item in value):
         raise RegistryError(f"every item in {name!r} must be an object")
     return value
+
+
+def _validate_entities(
+    signs: list[Sign],
+    sources: list[Source],
+    interpretations: list[Interpretation],
+) -> None:
+    _require_unique([item.id for item in signs], "sign")
+    _require_unique([item.id for item in sources], "source")
+    _require_unique([item.id for item in interpretations], "interpretation")
+
+    sign_ids = {item.id for item in signs}
+    source_ids = {item.id for item in sources}
+    for item in interpretations:
+        if item.sign_id not in sign_ids:
+            raise RegistryError(
+                f"interpretation {item.id!r} references unknown sign {item.sign_id!r}"
+            )
+        if item.source_id not in source_ids:
+            raise RegistryError(
+                f"interpretation {item.id!r} references unknown source {item.source_id!r}"
+            )
+        overlap = item.required_tags & item.excluded_tags
+        if overlap:
+            raise RegistryError(
+                f"interpretation {item.id!r} requires and excludes the same tags: "
+                + ", ".join(sorted(overlap))
+            )
+
+    interpretation_by_id = {item.id: item for item in interpretations}
+    for item in interpretations:
+        if item.supersedes_id is None:
+            continue
+        prior = interpretation_by_id.get(item.supersedes_id)
+        if prior is None:
+            raise RegistryError(
+                f"interpretation {item.id!r} supersedes unknown interpretation "
+                f"{item.supersedes_id!r}"
+            )
+        if prior.sign_id != item.sign_id:
+            raise RegistryError(
+                f"interpretation {item.id!r} must supersede a reading of the same sign"
+            )
+
+    for item in interpretations:
+        seen: set[str] = set()
+        current = item
+        while current.supersedes_id is not None:
+            if current.id in seen:
+                raise RegistryError("interpretation revision history contains a cycle")
+            seen.add(current.id)
+            current = interpretation_by_id[current.supersedes_id]
 
 
 def _require_unique(values: list[str], kind: str) -> None:
@@ -138,6 +196,15 @@ def _optional_text(item: dict[str, Any], name: str) -> str | None:
     return value
 
 
+def _optional_int(item: dict[str, Any], name: str) -> int | None:
+    value = item.get(name)
+    if value is None:
+        return None
+    if isinstance(value, bool) or not isinstance(value, int):
+        raise RegistryError(f"{name!r} must be an integer when present")
+    return value
+
+
 def _tag_set(item: dict[str, Any], name: str) -> frozenset[str]:
     value = item.get(name, [])
     if not isinstance(value, list) or not all(
@@ -159,18 +226,32 @@ def _parse_sign(item: dict[str, Any]) -> Sign:
 
 
 def _parse_source(item: dict[str, Any]) -> Source:
-    _reject_unknown_keys(item, {"id", "description", "locator"}, "source")
+    _reject_unknown_keys(
+        item,
+        {"id", "description", "locator", "citation", "published_year"},
+        "source",
+    )
     return Source(
         id=_required_text(item, "id"),
         description=_required_text(item, "description"),
         locator=_optional_text(item, "locator"),
+        citation=_optional_text(item, "citation"),
+        published_year=_optional_int(item, "published_year"),
     )
 
 
 def _parse_interpretation(item: dict[str, Any]) -> Interpretation:
     _reject_unknown_keys(
         item,
-        {"id", "sign_id", "meaning", "source_id", "required_tags", "excluded_tags"},
+        {
+            "id",
+            "sign_id",
+            "meaning",
+            "source_id",
+            "supersedes_id",
+            "required_tags",
+            "excluded_tags",
+        },
         "interpretation",
     )
     return Interpretation(
@@ -178,6 +259,7 @@ def _parse_interpretation(item: dict[str, Any]) -> Interpretation:
         sign_id=_required_text(item, "sign_id"),
         meaning=_required_text(item, "meaning"),
         source_id=_required_text(item, "source_id"),
+        supersedes_id=_optional_text(item, "supersedes_id"),
         required_tags=_tag_set(item, "required_tags"),
         excluded_tags=_tag_set(item, "excluded_tags"),
     )

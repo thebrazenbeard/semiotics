@@ -1,29 +1,37 @@
 # Roadmap
 
-The repository should grow by making evidence and semantics more explicit, not by
-quietly turning deterministic matching into an AI guesser.
+The repository should grow by making evidence and semantics more explicit, not
+by quietly turning deterministic matching into an AI guesser.
 
-## v0.1 — deterministic kernel
+## v0.1 - deterministic kernel
 
-Current target: explicit registry validation, context predicates, deterministic
+Complete: explicit registry validation, exact context predicates, deterministic
 query ordering, JSON CLI, examples, tests, CI, and a machine-readable schema.
 
-## Candidate v0.2 — corpus discipline
+## v0.2 - corpus discipline
 
-Possible additions, each requiring an explicit contract:
+In progress. Implemented:
 
-- bibliographic source records with stable locators and dates;
-- claim/revision history instead of destructive meaning replacement;
+- bibliographic source metadata through citation, locator, and published_year;
+- append-only interpretation revision links through supersedes_id;
+- current-versus-historical query behavior;
+- CLI access to superseded history;
+- executable JSON Schema validation in the test suite;
+- a source-backed foundational corpus separated by theoretical framework.
+
+Still open:
+
 - explicit relations among signs, contexts, and interpretations;
-- contradiction and competing-reading representation;
-- import/export validation against the published schema.
+- first-class competing-reading and contradiction representation;
+- richer source criticism beyond bibliographic provenance;
+- import/export tooling beyond loading validated JSON.
 
-## Candidate v0.3 — evaluation layer
+## Candidate v0.3 - evaluation layer
 
 Before learned or probabilistic interpretation is admitted, establish a labeled
 evaluation corpus, metrics, uncertainty representation, provenance for model
 outputs, and a hard distinction between generated hypotheses and registered
 source-backed readings.
 
-None of these candidates is implied to be implemented or authorized merely by
-appearing on this roadmap.
+Roadmap candidates are not authorization to introduce probabilistic inference
+or external learned services into the deterministic kernel.

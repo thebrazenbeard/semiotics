@@ -16,6 +16,8 @@ class Source:
     id: str
     description: str
     locator: str | None = None
+    citation: str | None = None
+    published_year: int | None = None
 
 
 @dataclass(frozen=True)
@@ -24,6 +26,7 @@ class Interpretation:
     sign_id: str
     meaning: str
     source_id: str
+    supersedes_id: str | None = None
     required_tags: FrozenSet[str] = frozenset()
     excluded_tags: FrozenSet[str] = frozenset()
 

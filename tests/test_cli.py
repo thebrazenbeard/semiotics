@@ -1,6 +1,7 @@
 import json
 import subprocess
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -40,6 +41,43 @@ class CliTests(unittest.TestCase):
         proc = self.run_cli("examples/registry.json", "red-light")
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertEqual(json.loads(proc.stdout), [])
+
+    def test_include_superseded_returns_revision_history(self):
+        payload = {
+            "signs": [{"id": "s", "form": "x", "modality": "visual"}],
+            "sources": [{"id": "src", "description": "example"}],
+            "interpretations": [
+                {"id": "old", "sign_id": "s", "meaning": "old", "source_id": "src"},
+                {
+                    "id": "new",
+                    "sign_id": "s",
+                    "meaning": "new",
+                    "source_id": "src",
+                    "supersedes_id": "old",
+                },
+            ],
+        }
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".json", encoding="utf-8", delete=False
+        ) as handle:
+            json.dump(payload, handle)
+            registry_path = handle.name
+        try:
+            current = self.run_cli(registry_path, "s")
+            history = self.run_cli(registry_path, "s", "--include-superseded")
+        finally:
+            Path(registry_path).unlink(missing_ok=True)
+
+        self.assertEqual(current.returncode, 0, current.stderr)
+        self.assertEqual(
+            [item["interpretation"]["id"] for item in json.loads(current.stdout)],
+            ["new"],
+        )
+        self.assertEqual(history.returncode, 0, history.stderr)
+        self.assertEqual(
+            [item["interpretation"]["id"] for item in json.loads(history.stdout)],
+            ["new", "old"],
+        )
 
 
 if __name__ == "__main__":

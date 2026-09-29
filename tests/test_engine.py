@@ -35,6 +35,15 @@ class RegistryTests(unittest.TestCase):
             ["specific", "general"],
         )
 
+    def test_query_result_is_json_serializable(self):
+        import json
+
+        registry = Registry.from_dict(registry_payload())
+        result = registry.query("s", {"a"})
+        encoded = json.dumps(result)
+        self.assertIn('"required_tags": ["a"]', encoded)
+        self.assertEqual(result[0]["interpretation"]["excluded_tags"], ["b"])
+
     def test_excluded_tag_blocks_match(self):
         registry = Registry.from_dict(registry_payload())
         result = registry.query("s", {"a", "b"})

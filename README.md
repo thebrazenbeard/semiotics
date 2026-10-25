@@ -82,3 +82,11 @@ dump_registry() provide deterministic ID-sorted export that round-trips through
 the loader.
 
 The repository is currently all-rights-reserved; see LICENSE.
+
+## Editor startup hygiene
+
+The committed-source regression checks prohibit the identified concealed
+VS Code folder-open Node task and disguised executable asset. These tests
+do not qualify any editor session or workstation. VS Code's
+`task.allowAutomaticTasks` setting is user/application-scoped, so this
+repository intentionally does not set it in workspace configuration.

@@ -19,11 +19,11 @@ class WorkspaceStartupSafetyTests(unittest.TestCase):
             for task in tasks.get("tasks", [])
         ))
 
-    def test_automatic_workspace_tasks_are_disabled(self):
+    def test_no_ineffective_workspace_automatic_task_setting(self):
         settings = json.loads(
             (ROOT / ".vscode" / "settings.json").read_text(encoding="utf-8")
         )
-        self.assertIs(settings.get("task.allowAutomaticTasks"), False)
+        self.assertNotIn("task.allowAutomaticTasks", settings)
         self.assertNotIn("tasks", settings)
 
     def test_no_disguised_executable_asset(self):

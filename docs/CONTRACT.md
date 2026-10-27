@@ -54,6 +54,9 @@ cross-sign revision links, revision cycles, and predicates that both require and
 exclude the same tag are rejected. Runtime acceptance is intended to match the
 published JSON Schema plus referential and cross-field checks that JSON Schema
 alone does not express.
+Optional fields may be omitted from JSON input, but an explicitly present
+`null` is invalid, matching the published schema. Direct Python constructors
+may use `None` for omitted optional dataclass attributes.
 
 Unknown query sign IDs are errors. Query context tags must be non-empty strings.
 A known sign with no compatible current interpretation returns an empty list.

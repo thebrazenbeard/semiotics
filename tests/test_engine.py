@@ -29,6 +29,19 @@ def registry_payload():
 
 
 class RegistryTests(unittest.TestCase):
+    def test_explicit_null_optional_fields_fail_schema_parity(self):
+        for section, field in (
+            ("sources", "locator"),
+            ("sources", "citation"),
+            ("sources", "published_year"),
+            ("interpretations", "supersedes_id"),
+        ):
+            with self.subTest(section=section, field=field):
+                payload = registry_payload()
+                payload[section][0][field] = None
+                with self.assertRaisesRegex(RegistryError, field):
+                    Registry.from_dict(payload)
+
     def test_duplicate_json_property_cannot_replace_source_provenance(self):
         payload = '''{
             "signs": [{"id": "s", "form": "x", "modality": "visual"}],

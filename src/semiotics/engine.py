@@ -117,10 +117,22 @@ class Registry:
 
 
 def load_registry(path: str | Path) -> Registry:
-    payload = json.loads(Path(path).read_text(encoding="utf-8"))
+    payload = json.loads(
+        Path(path).read_text(encoding="utf-8"),
+        object_pairs_hook=_reject_duplicate_json_properties,
+    )
     if not isinstance(payload, dict):
         raise RegistryError("registry root must be a JSON object")
     return Registry.from_dict(payload)
+
+
+def _reject_duplicate_json_properties(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise RegistryError(f"duplicate JSON property {key!r}")
+        result[key] = value
+    return result
 
 
 def dump_registry(registry: Registry, path: str | Path) -> None:

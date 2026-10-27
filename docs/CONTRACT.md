@@ -48,7 +48,8 @@ result set.
 
 Malformed registries fail closed whether parsed from JSON or assembled through
 the public dataclass constructor path. Unknown fields, duplicate IDs, duplicate
-tags, whitespace-only strings, dangling sign/source/revision references,
+tags, duplicate JSON object properties, whitespace-only strings, dangling
+sign/source/revision references,
 cross-sign revision links, revision cycles, and predicates that both require and
 exclude the same tag are rejected. Runtime acceptance is intended to match the
 published JSON Schema plus referential and cross-field checks that JSON Schema

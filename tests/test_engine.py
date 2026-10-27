@@ -1,6 +1,8 @@
 import unittest
+from pathlib import Path
+from tempfile import TemporaryDirectory
 
-from semiotics.engine import Registry, RegistryError
+from semiotics.engine import Registry, RegistryError, load_registry
 
 
 def registry_payload():
@@ -27,6 +29,24 @@ def registry_payload():
 
 
 class RegistryTests(unittest.TestCase):
+    def test_duplicate_json_property_cannot_replace_source_provenance(self):
+        payload = '''{
+            "signs": [{"id": "s", "form": "x", "modality": "visual"}],
+            "sources": [
+                {"id": "original", "description": "original source"},
+                {"id": "replacement", "description": "replacement source"}
+            ],
+            "interpretations": [{
+                "id": "i", "sign_id": "s", "meaning": "reading",
+                "source_id": "original", "source_id": "replacement"
+            }]
+        }'''
+        with TemporaryDirectory() as directory:
+            path = Path(directory) / "ambiguous.json"
+            path.write_text(payload, encoding="utf-8")
+            with self.assertRaisesRegex(RegistryError, "duplicate JSON property 'source_id'"):
+                load_registry(path)
+
     def test_more_specific_matches_sort_first(self):
         registry = Registry.from_dict(registry_payload())
         result = registry.query("s", {"a"})

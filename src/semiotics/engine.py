@@ -340,18 +340,18 @@ def _required_text(item: dict[str, Any], name: str) -> str:
 
 
 def _optional_text(item: dict[str, Any], name: str) -> str | None:
-    value = item.get(name)
-    if value is None:
+    if name not in item:
         return None
+    value = item[name]
     if not isinstance(value, str) or not value.strip():
         raise RegistryError(f"{name!r} must be a non-empty string when present")
     return value
 
 
 def _optional_int(item: dict[str, Any], name: str) -> int | None:
-    value = item.get(name)
-    if value is None:
+    if name not in item:
         return None
+    value = item[name]
     if isinstance(value, bool) or not isinstance(value, int):
         raise RegistryError(f"{name!r} must be an integer when present")
     return value
